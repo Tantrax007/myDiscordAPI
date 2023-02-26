@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.FileNotFoundException;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping(value = "/fotoperfil")
 public class FotoPerfilController {
@@ -27,7 +28,7 @@ public class FotoPerfilController {
     }
 
     @PutMapping("/actualizar")
-    public FotoPerfilOutputDTO actualizarFotoPerfilPorUsuario(@RequestBody FotoPerfilInputDTO fotoPerfilInputDTO) {
+    public FotoPerfilOutputDTO actualizarFotoPerfilPorUsuario(@RequestBody FotoPerfilInputDTO fotoPerfilInputDTO) throws FileNotFoundException {
         return fotoPerfilService.updateFotoPerfil(fotoPerfilInputDTO);
     }
 

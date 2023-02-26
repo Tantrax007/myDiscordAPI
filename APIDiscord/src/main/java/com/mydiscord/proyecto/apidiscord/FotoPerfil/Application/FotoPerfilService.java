@@ -9,6 +9,6 @@ import java.util.List;
 public interface FotoPerfilService {
     FotoPerfilOutputDTO getFotoPerfilByUsuarioId(long idUsuario);
     FotoPerfilOutputDTO createFotoPerfil(FotoPerfilInputDTO fotoPerfilInputDTO) throws FileNotFoundException;
-    FotoPerfilOutputDTO updateFotoPerfil(FotoPerfilInputDTO fotoPerfilInputDTO);
+    FotoPerfilOutputDTO updateFotoPerfil(FotoPerfilInputDTO fotoPerfilInputDTO) throws FileNotFoundException;
     boolean deleteFotoPerfil(long idFotoPerfil);
 }

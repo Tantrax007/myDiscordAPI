@@ -3,9 +3,11 @@ package com.mydiscord.proyecto.apidiscord.Mensaje.Infrastructure.controllers.dto
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
+@ToString
 public class MensajeInputDTO {
     @NotNull(message = "El mensaje tiene que pertenecer a un usuario")
     private Long usuario;

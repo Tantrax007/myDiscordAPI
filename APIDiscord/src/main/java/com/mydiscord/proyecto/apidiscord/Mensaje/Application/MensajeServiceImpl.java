@@ -1,5 +1,7 @@
 package com.mydiscord.proyecto.apidiscord.Mensaje.Application;
 
+import com.mydiscord.proyecto.apidiscord.Chat.Domain.Chat;
+import com.mydiscord.proyecto.apidiscord.Chat.Infrastructure.controllers.dto.output.BasicChatOutputDTO;
 import com.mydiscord.proyecto.apidiscord.Chat.Infrastructure.repository.jpa.ChatRepository;
 import com.mydiscord.proyecto.apidiscord.Mensaje.Domain.Mensaje;
 import com.mydiscord.proyecto.apidiscord.Mensaje.Infrastructure.controllers.dto.input.MensajeInputDTO;
@@ -7,6 +9,7 @@ import com.mydiscord.proyecto.apidiscord.Mensaje.Infrastructure.controllers.dto.
 import com.mydiscord.proyecto.apidiscord.Mensaje.Infrastructure.controllers.dto.output.MensajeOutputDTO;
 import com.mydiscord.proyecto.apidiscord.Mensaje.Infrastructure.repository.jpa.MensajeRepository;
 import com.mydiscord.proyecto.apidiscord.Usuario.Infrastructure.repository.UsuarioRepository;
+import jakarta.persistence.Basic;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,9 +31,15 @@ public class MensajeServiceImpl implements MensajeService {
     private UsuarioRepository usuarioRepository;
 
     @Override
-    public List<BasicMensajeOutputDTO> getAllMensajesByUsuario(long idUsuario) {
+    public List<MensajeOutputDTO> getAllMensajesByUsuario(long idUsuario) {
         log.info("Obteniendo todos los mensajes del usuario con id: {}", idUsuario);
-        return mensajeRepository.findAllByUsuarioId(idUsuario).stream().map(BasicMensajeOutputDTO::new).toList();
+        return mensajeRepository.findAllByUsuarioId(idUsuario).stream().map(MensajeOutputDTO::new).toList();
+    }
+
+    @Override
+    public List<MensajeOutputDTO> getAllMensajesByChat(long idChat) {
+        log.info("Obteniendo todos los mensajes del chat con id: {}", idChat);
+        return mensajeRepository.findAllByChatId(idChat).stream().map(MensajeOutputDTO::new).toList();
     }
 
     @Override
@@ -42,9 +51,11 @@ public class MensajeServiceImpl implements MensajeService {
     @Override
     public MensajeOutputDTO crearMensaje(MensajeInputDTO mensajeInputDTO) throws FileNotFoundException {
         log.info("Creando mensaje");
+        System.out.println(mensajeInputDTO.toString());
         Mensaje nuevoMensaje = new Mensaje();
         nuevoMensaje.setChat(chatRepository.findById(mensajeInputDTO.getChat()).orElseThrow(() -> new FileNotFoundException("Chat no encontrado")));
         nuevoMensaje.setUsuario(usuarioRepository.findById(mensajeInputDTO.getUsuario()).orElseThrow(() -> new FileNotFoundException("Usuario no encontrado")));
+        nuevoMensaje.setContenido(mensajeInputDTO.getContenidoMensaje());
         return new MensajeOutputDTO(mensajeRepository.save(nuevoMensaje));
     }
 

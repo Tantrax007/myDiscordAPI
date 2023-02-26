@@ -2,6 +2,7 @@ package com.mydiscord.proyecto.apidiscord.Chat.Application;
 
 import com.mydiscord.proyecto.apidiscord.Chat.Domain.Chat;
 import com.mydiscord.proyecto.apidiscord.Chat.Infrastructure.controllers.dto.input.ChatInputDTO;
+import com.mydiscord.proyecto.apidiscord.Chat.Infrastructure.controllers.dto.output.BasicChatOutputDTO;
 import com.mydiscord.proyecto.apidiscord.Chat.Infrastructure.controllers.dto.output.ChatOutputDTO;
 import com.mydiscord.proyecto.apidiscord.Chat.Infrastructure.repository.jpa.ChatRepository;
 import com.mydiscord.proyecto.apidiscord.Mensaje.Domain.Mensaje;
@@ -49,6 +50,8 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public ChatOutputDTO crearChat(ChatInputDTO chatInputDTO) {
         Chat nuevoChat = new Chat();
+
+//        Primero creamos el nuevo chat
         nuevoChat.setUsuarios(chatInputDTO.getUsuariosIds().stream().map(id -> usuarioRepository.findById(id).orElse(new Usuario())).collect(Collectors.toList())); //setUsuarios();
 
         nuevoChat.setMensajes(chatInputDTO.getMensajesIds().stream().map(id -> mensajeRepository.findById(id).orElse(new Mensaje())).collect(Collectors.toList())); //setMensajes();
@@ -57,7 +60,22 @@ public class ChatServiceImpl implements ChatService {
         nuevoChat.setNroUsuarios(chatInputDTO.getNroUsuarios());
 
         log.info("Nuevo chat creado: {}", nuevoChat.getNombreChat());
-        return new ChatOutputDTO(chatRepository.save(nuevoChat));
+        ChatOutputDTO chatCreado = new ChatOutputDTO(chatRepository.save(nuevoChat));
+
+//        Despues de crear el chat tenemos que asignarlo a los usuarios
+        chatInputDTO.getUsuariosIds().forEach(usuarioId -> {
+            Usuario usuarioAAsignar = new Usuario();
+            if (usuarioRepository.findById(usuarioId).isPresent()) {
+                usuarioAAsignar = usuarioRepository.findById(usuarioId).get();
+                usuarioAAsignar.getChats().add(nuevoChat);
+                usuarioRepository.save(usuarioAAsignar);
+                log.info("Chat asignado al usuario {}", usuarioAAsignar.getId());
+            }
+            else{
+                log.error("El chat no se ha podido asignar al usuario {} porque no se ha encontrado", usuarioAAsignar.getId());
+            }
+        });
+        return chatCreado;
     }
 
     @Override

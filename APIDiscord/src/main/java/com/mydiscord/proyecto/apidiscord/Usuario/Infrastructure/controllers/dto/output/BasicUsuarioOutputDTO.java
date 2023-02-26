@@ -7,11 +7,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class BasicUsuarioOutputDTo {
+public class BasicUsuarioOutputDTO {
     private Long id;
     private String name;
 
-    public BasicUsuarioOutputDTo(Usuario usuario) {
+    public BasicUsuarioOutputDTO(Usuario usuario) {
         setId(usuario.getId());
         setName(usuario.getName());
     }

@@ -1,6 +1,7 @@
 package com.mydiscord.proyecto.apidiscord.Chat.Application;
 
 import com.mydiscord.proyecto.apidiscord.Chat.Infrastructure.controllers.dto.input.ChatInputDTO;
+import com.mydiscord.proyecto.apidiscord.Chat.Infrastructure.controllers.dto.output.BasicChatOutputDTO;
 import com.mydiscord.proyecto.apidiscord.Chat.Infrastructure.controllers.dto.output.ChatOutputDTO;
 
 import java.io.FileNotFoundException;

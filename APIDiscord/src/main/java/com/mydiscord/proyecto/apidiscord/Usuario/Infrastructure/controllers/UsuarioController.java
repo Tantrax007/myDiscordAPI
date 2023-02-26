@@ -3,7 +3,7 @@ package com.mydiscord.proyecto.apidiscord.Usuario.Infrastructure.controllers;
 import com.mydiscord.proyecto.apidiscord.Mensaje.Infrastructure.controllers.dto.input.MensajeInputDTO;
 import com.mydiscord.proyecto.apidiscord.Usuario.Application.UsuarioService;
 import com.mydiscord.proyecto.apidiscord.Usuario.Infrastructure.controllers.dto.input.UsuarioInputDTO;
-import com.mydiscord.proyecto.apidiscord.Usuario.Infrastructure.controllers.dto.output.BasicUsuarioOutputDTo;
+import com.mydiscord.proyecto.apidiscord.Usuario.Infrastructure.controllers.dto.output.BasicUsuarioOutputDTO;
 import com.mydiscord.proyecto.apidiscord.Usuario.Infrastructure.controllers.dto.output.UsuarioOutputDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.FileNotFoundException;
 import java.util.List;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping(value= "/usuario")
 public class UsuarioController {
@@ -29,12 +30,12 @@ public class UsuarioController {
     }
 
     @GetMapping(value = "/obtener/basico/porId/{idUsuario}")
-    public BasicUsuarioOutputDTo obtenerBasicoPorId(@PathVariable long idUsuario) throws FileNotFoundException{
+    public BasicUsuarioOutputDTO obtenerBasicoPorId(@PathVariable long idUsuario) throws FileNotFoundException{
         return usuarioService.getBasicUsuarioById(idUsuario);
     }
 
     @PostMapping(value = "/crear/usuario")
-    public BasicUsuarioOutputDTo crearUsuario(@RequestBody UsuarioInputDTO usuarioInputDTO) throws FileNotFoundException {
+    public BasicUsuarioOutputDTO crearUsuario(@RequestBody UsuarioInputDTO usuarioInputDTO) throws FileNotFoundException {
         return usuarioService.crearUsuario(usuarioInputDTO);
     }
 
@@ -51,6 +52,11 @@ public class UsuarioController {
     @PostMapping(value = "/agregar/mensaje/usuario")
     public UsuarioOutputDTO agregarChatAUsuario(@RequestBody MensajeInputDTO nuevoMensaje) throws FileNotFoundException{
         return usuarioService.addMensajeToUsuario(nuevoMensaje);
+    }
+
+    @DeleteMapping(value = "/abandonarChat/{idChat}/{idUsuario}")
+    public boolean abandonarChat(@PathVariable long idChat, @PathVariable long idUsuario) throws FileNotFoundException{
+        return usuarioService.abandonarChat(idChat, idUsuario);
     }
 
     @DeleteMapping(value = "/eliminar/usuario/{id}")

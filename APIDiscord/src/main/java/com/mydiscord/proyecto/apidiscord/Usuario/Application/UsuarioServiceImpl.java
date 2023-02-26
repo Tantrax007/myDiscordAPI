@@ -1,5 +1,6 @@
 package com.mydiscord.proyecto.apidiscord.Usuario.Application;
 
+import com.mydiscord.proyecto.apidiscord.Chat.Domain.Chat;
 import com.mydiscord.proyecto.apidiscord.Chat.Infrastructure.repository.jpa.ChatRepository;
 import com.mydiscord.proyecto.apidiscord.FotoPerfil.Infrastructure.repository.jpa.FotoPerfilRepository;
 import com.mydiscord.proyecto.apidiscord.Mensaje.Domain.Mensaje;
@@ -7,16 +8,16 @@ import com.mydiscord.proyecto.apidiscord.Mensaje.Infrastructure.controllers.dto.
 import com.mydiscord.proyecto.apidiscord.Mensaje.Infrastructure.repository.jpa.MensajeRepository;
 import com.mydiscord.proyecto.apidiscord.Usuario.Domain.Usuario;
 import com.mydiscord.proyecto.apidiscord.Usuario.Infrastructure.controllers.dto.input.UsuarioInputDTO;
-import com.mydiscord.proyecto.apidiscord.Usuario.Infrastructure.controllers.dto.output.BasicUsuarioOutputDTo;
+import com.mydiscord.proyecto.apidiscord.Usuario.Infrastructure.controllers.dto.output.BasicUsuarioOutputDTO;
 import com.mydiscord.proyecto.apidiscord.Usuario.Infrastructure.controllers.dto.output.UsuarioOutputDTO;
 import com.mydiscord.proyecto.apidiscord.Usuario.Infrastructure.repository.UsuarioRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -48,14 +49,14 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
-    public BasicUsuarioOutputDTo getBasicUsuarioById(long idUsuario) throws FileNotFoundException {
+    public BasicUsuarioOutputDTO getBasicUsuarioById(long idUsuario) throws FileNotFoundException {
         log.info("Obtenido usuario basico con id: {}", idUsuario);
-        return usuarioRepository.findById(idUsuario).map(BasicUsuarioOutputDTo::new).orElseThrow(() -> new FileNotFoundException("Usuario no encontrado"));
+        return usuarioRepository.findById(idUsuario).map(BasicUsuarioOutputDTO::new).orElseThrow(() -> new FileNotFoundException("Usuario no encontrado"));
     }
 
 
     @Override
-    public BasicUsuarioOutputDTo crearUsuario(UsuarioInputDTO usuarioInputDTO) throws FileNotFoundException {
+    public BasicUsuarioOutputDTO crearUsuario(UsuarioInputDTO usuarioInputDTO) throws FileNotFoundException {
         Usuario nuevoUsuario = new Usuario();
         nuevoUsuario.setName(usuarioInputDTO.getName());
         if (usuarioInputDTO.getFotoPerfilId() > 0) {
@@ -64,7 +65,7 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         //Un usuario recien creado no pertenece a ningun grupo, a ningun chat privado ni tiene mensajes mandados
         log.info("Usuario creado con id: {}", nuevoUsuario.getId());
-        return new BasicUsuarioOutputDTo(usuarioRepository.save(nuevoUsuario));
+        return new BasicUsuarioOutputDTO(usuarioRepository.save(nuevoUsuario));
     }
 
     @Override
@@ -117,6 +118,28 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         log.error("No se ha podido agregar el mensaje: {}, al usuario: {} porque el mensaje no existe", nuevoMensaje.getUsuario(), nuevoMensaje.getContenidoMensaje());
         return null;
+    }
+
+    @Override
+    public boolean abandonarChat(long idChat, long idUsuario) throws FileNotFoundException{
+        if (chatRepository.findById(idChat).isPresent()){
+            if (usuarioRepository.findById(idUsuario).isPresent()){
+                List<Chat> chatsDelUsuario = chatRepository.findAllByUsuariosId(idUsuario);
+                Optional<Chat> chatAEliminar = chatsDelUsuario.stream().filter(chat -> chat.getId() == idChat).findFirst();
+                if (chatAEliminar.isPresent()){
+                    Usuario usuario = usuarioRepository.findById(idUsuario).get();
+                    usuario.getChats().remove(chatAEliminar.get());
+
+                    log.info("El usuario con id: {} ha abandonado el chat con id: {}", idUsuario, idChat);
+                    usuarioRepository.save(usuario);
+                    return true;
+                }
+            }
+            log.error("No se ha podido abandonar el chat por que el usuario {} no existe", idUsuario);
+            return false;
+        }
+        log.error("No se ha podido abandonar el chat: {}, por el usuario: {} porque el chat no existe", idChat, idUsuario);
+        return false;
     }
 
     @Override

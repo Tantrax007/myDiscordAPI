@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.FileNotFoundException;
 import java.util.List;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping(value = "/mensajes")
 public class MensajeController {
@@ -20,8 +21,13 @@ public class MensajeController {
     }
 
     @GetMapping("/obtener/porUsuarioId/{id}")
-    public List<BasicMensajeOutputDTO> obtenerMensajesDeUsuario(@PathVariable("id") int idUsuario) {
+    public List<MensajeOutputDTO> obtenerMensajesDeUsuario(@PathVariable("id") int idUsuario) {
         return mensajeService.getAllMensajesByUsuario(idUsuario);
+    }
+
+    @GetMapping("/obtener/porChatId/{id}")
+    public List<MensajeOutputDTO> obtenerMensajesPorChat(@PathVariable("id") int idChat) {
+        return mensajeService.getAllMensajesByChat(idChat);
     }
 
     @GetMapping(value = "/obtener/porMensajeId/{id}")
